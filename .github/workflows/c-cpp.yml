@@ -9,17 +9,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    # Usa o container oficial do ps2dev que já tem o SDK completo instalado
-    container: ps2dev/ps2dev:latest
 
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup Environment & PS2SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev genisoimage libgmp-dev libmpfr-dev libmpc-dev bison flex
+
+        # Baixa o ps2sdk oficial diretamente para o diretório correto
+        sudo mkdir -p /usr/local/ps2dev
+        sudo chmod 777 /usr/local/ps2dev
+        git clone https://github.com/ps2dev/ps2sdk.git /usr/local/ps2dev/ps2sdk
+
+        # Configura as variáveis de ambiente necessárias para o make encontrar os caminhos
+        echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
+        echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
+        echo "PATH=$PATH:/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_ENV
+
     - name: Build with make
       run: |
+        export PS2DEV=/usr/local/ps2dev
+        export PS2SDK=/usr/local/ps2dev/ps2sdk
+        export PATH=$PATH:/usr/local/ps2dev/ps2sdk/bin
+        
         cd source/ps2
-        make clean || true
         make
 
     - name: Upload ELF Artifact
