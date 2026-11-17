@@ -13,17 +13,24 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Environment & PS2SDK
+    - name: Setup PS2DEV Environment & SDK
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev genisoimage libgmp-dev libmpfr-dev libmpc-dev bison flex
 
-        # Baixa o ps2sdk oficial diretamente para o diretório correto
+        # Prepara o diretório base do ps2dev
         sudo mkdir -p /usr/local/ps2dev
         sudo chmod 777 /usr/local/ps2dev
+
+        # Clona o ps2sdk estruturado corretamente no caminho esperado
         git clone https://github.com/ps2dev/ps2sdk.git /usr/local/ps2dev/ps2sdk
 
-        # Configura as variáveis de ambiente necessárias para o make encontrar os caminhos
+        # Cria um Makefile.pref básico de compatibilidade caso o repositório exija
+        mkdir -p /usr/local/ps2dev/ps2sdk/samples
+        echo "PS2SDK ?= /usr/local/ps2dev/ps2sdk" > /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+        echo "include \$(PS2SDK)/samples/Makefile.pref" >> /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+
+        # Define variáveis de ambiente globais
         echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
         echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_ENV
