@@ -13,8 +13,21 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup PS2DEV Environment
-      uses: ps2dev/setup-ps2dev@main
+    - name: Install Dependencies & PS2DEV Toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev genisoimage
+
+        # Clona e instala o ambiente oficial do ps2dev de forma limpa
+        git clone https://github.com/ps2dev/ps2dev.git /opt/ps2dev
+        export PS2DEV=/opt/ps2dev
+        export PS2SDK=$PS2DEV/ps2sdk
+        export PATH=$PATH:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin
+
+        # Salva as variáveis de ambiente para os próximos passos
+        echo "PS2DEV=/opt/ps2dev" >> $GITHUB_ENV
+        echo "PS2SDK=/opt/ps2dev/ps2sdk" >> $GITHUB_ENV
+        echo "PATH=$PATH:/opt/ps2dev/ee/bin:/opt/ps2dev/iop/bin:/opt/ps2dev/dvp/bin:/opt/ps2dev/ps2sdk/bin" >> $GITHUB_ENV
 
     - name: Build with make
       run: |
