@@ -31,6 +31,5 @@ jobs:
 
     - name: Build with make
       run: |
-        make clean
         make
         
