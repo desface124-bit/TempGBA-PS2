@@ -13,15 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install PS2SDK & Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev ps2sdk ps2-gcc ps2-packer
+    - name: Setup PS2DEV Environment
+      uses: ps2dev/setup-ps2dev@main
 
     - name: Build with make
       run: |
-        # Caso o Makefile fique em uma subpasta (ex: source/ps2), ajuste o cd abaixo:
-        # cd source/ps2
         make clean
         make
         
