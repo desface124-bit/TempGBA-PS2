@@ -13,22 +13,29 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Dependencies & Download PS2DEV Toolchain
+    - name: Install Dependencies & Setup Toolchain
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev genisoimage libgmp-dev libmpfr-dev libmpc-dev bison flex libarchive-tools
 
-        # Cria o diretório do ps2dev
+        # Cria o diretório base do ps2dev
         sudo mkdir -p /usr/local/ps2dev
         sudo chmod 777 /usr/local/ps2dev
 
         # Clona o ps2sdk oficial
         git clone https://github.com/ps2dev/ps2sdk.git /usr/local/ps2dev/ps2sdk
 
-        # Baixa os binários pré-compilados do ee-gcc (compilador oficial) para evitar segmentation fault
+        # Baixa os binários pré-compilados do ee-gcc
         wget -qO- https://github.com/ps2dev/ee-gcc/releases/latest/download/ee-gcc-ubuntu-latest.tar.gz | tar -xz -C /usr/local/ps2dev/ || true
 
-        # Configura as variáveis de ambiente completas
+        # Cria o arquivo Makefile.pref que o SDK exige para compilar projetos
+        mkdir -p /usr/local/ps2dev/ps2sdk/samples
+        echo "PS2DEV ?= /usr/local/ps2dev" > /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+        echo "PS2SDK ?= \$(PS2DEV)/ps2sdk" >> /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+        echo "EE_GCC ?= \$(PS2DEV)/ee" >> /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+        echo "include \$(PS2SDK)/samples/Makefile.pref" >> /usr/local/ps2dev/ps2sdk/samples/Makefile.pref
+
+        # Configura as variáveis de ambiente globais
         echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
         echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
         echo "PATH=$PATH:/usr/local/ps2dev/ee/bin:/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_ENV
