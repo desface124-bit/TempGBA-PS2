@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential git wget libxml2-dev zlib1g-dev genisoimage
 
-        # Clona e instala o ambiente oficial do ps2dev de forma limpa
+        # Clona e instala o ambiente oficial do ps2dev
         git clone https://github.com/ps2dev/ps2dev.git /opt/ps2dev
         export PS2DEV=/opt/ps2dev
         export PS2SDK=$PS2DEV/ps2sdk
@@ -31,5 +31,12 @@ jobs:
 
     - name: Build with make
       run: |
+        cd source/ps2
         make
+
+    - name: Upload ELF Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TempGBA-PS2-AutoBoot
+        path: source/ps2/*.elf
         
